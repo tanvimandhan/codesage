@@ -49,7 +49,7 @@ getProjects:protectedProcedure.query(async({ctx})=>{
         }
     })
 }),
-getCommits:protectedProcedure.input(z.object({
+   getCommits:protectedProcedure.input(z.object({
     projectId:z.string()
    })).query(async({ctx,input})=>{
     pollCommits(input.projectId).then().catch(console.error)
@@ -61,17 +61,23 @@ getCommits:protectedProcedure.input(z.object({
     answer: z.string(),      
     filesReferences: z.any()
    })).mutation(async({ctx,input})=>{
-    return await ctx.db.question.create({
-      data:{
-        answer:input.answer,
-        filesReferences:input.filesReferences,
-        projectId:input.projectId,
-        question:input.question,
-        userId:ctx.user.userId!,
-        
-      }
-    })
-}),
+    console.log("Incoming saveAnswer data:", input);
+    try {
+      return await ctx.db.question.create({
+        data: {
+          answer: input.answer,
+          filesReferences: input.filesReferences, // <-- might need JSON.stringify()
+          projectId: input.projectId,
+          question: input.question,
+          userId: ctx.user.userId!,
+          
+        },
+      });
+    } catch (err) {
+      console.error("DB save error:", err);
+      throw new Error("Failed to save answer: " + (err as Error).message);
+    }
+   }),
   getQuestions:protectedProcedure.input(z.object({projectId:z.string()})).query(async({ctx,input})=>{
     return await ctx.db.question.findMany({
       where:{

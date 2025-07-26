@@ -198,8 +198,8 @@ export async function generateEmbedding(summary:string){
       //console.log(embedding.values)
       return embedding.values
   }catch(error){
-    
-    return "embedding could not be generated.";
+    console.error('Embedding failed', error);
+    return [];
   }
     
 }
