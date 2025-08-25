@@ -23,7 +23,7 @@ const BilligPage = () => {
                     <Info className='size-4'/>
                     <p className='text-sm'>Each credit allows you to index 1 file in repo</p>
                 </div>
-                <p className='text-sm'>e.x if yout project has 100 files you will need 100 credits to index it</p>
+                <p className='text-sm'>e.x if your project has 100 files you will need 100 credits to index it</p>
             </div>
             <div className='h-4'></div>
             
