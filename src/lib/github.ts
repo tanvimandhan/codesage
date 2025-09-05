@@ -89,6 +89,7 @@ async function fetchProjectGithubUrl(projectId:string){
             githubUrl:true
         }
     })
+    console.log(project?.githubUrl);
     if(!project?.githubUrl){
         throw new Error("project has no github url")
     }
