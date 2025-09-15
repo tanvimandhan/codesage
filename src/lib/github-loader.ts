@@ -91,10 +91,14 @@ export const indexGithubRepo=async(projectId:string,githubUrl:string,githubToken
         });
             console.log("Inserted DB Row:", sourceCodeEmbedding);
             console.log("DB Inserted ID:", sourceCodeEmbedding.id);
-            await db.$executeRaw`
-            UPDATE "SourceCodeEmbedding"
-            SET "summaryEmbedding"=${embedding.embedding}::vector
-            WHERE "id"=${sourceCodeEmbedding.id}`
+            if (Array.isArray(embedding.embedding) && embedding.embedding.length > 0) {
+              await db.$executeRaw`
+              UPDATE "SourceCodeEmbedding"
+              SET "summaryEmbedding"=${embedding.embedding}::vector
+              WHERE "id"=${sourceCodeEmbedding.id}`
+            } else {
+              console.warn("Empty embedding vector; skipping vector update for", embedding.fileName)
+            }
         } catch (err) {
         console.error("DB Insert Error:", err);
         }
