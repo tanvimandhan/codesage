@@ -187,21 +187,24 @@ export async function summariseCode(docs:Document){
 }
 export async function generateEmbedding(summary:string){
   try{
-       const model=genAI.getGenerativeModel({
-        model:"embedding-001"
-      })
-      const result=await model.embedContent(summary)
-      if (!result.embedding || !result.embedding.values) {
-        throw new Error("Failed to generate embedding");
+      const trimmed = (summary || '').trim()
+      if (!trimmed) {
+        return []
       }
-      const embedding=result.embedding
-      //console.log(embedding.values)
-      return embedding.values
+      // Use latest embedding model via top-level embedContent API
+      const result = await genAI.embedContent({
+        model: "text-embedding-004",
+        content: trimmed,
+      })
+      const values = result?.embedding?.values
+      if (!Array.isArray(values) || values.length === 0) {
+        throw new Error("Failed to generate embedding: empty values")
+      }
+      return values
   }catch(error){
     console.error('Embedding failed', error);
-    return [];
+    return []
   }
-    
 }
 
 //console.log(generateEmbedding("hello world"))
