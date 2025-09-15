@@ -22,7 +22,7 @@ const QAPage = () => {
       <div className='flex flex-col gap-2'>
         {questions?.map((question,index)=>{
           return <Fragment key={question.id}>
-            <SheetTrigger onClick={()=>setQuestionIndex(index)}>
+            <SheetTrigger asChild onClick={()=>setQuestionIndex(index)}>
               
               <div className='flex items-center gap-4 bg-white rounded-lg p-4 shadow border'>
                 <img className=' rounded-full' height={20} width={20} src={question.user.imageUrl?? ""}/>

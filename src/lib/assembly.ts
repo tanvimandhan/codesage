@@ -1,7 +1,7 @@
 import {AssemblyAI} from "assemblyai"
 import { endOfDay } from "date-fns"
 
-const client=new AssemblyAI({apiKey:process.env.ASEEMBLY_API_KEY!})
+const client=new AssemblyAI({apiKey:process.env.ASSEMBLY_API_KEY!})
 
 function mstoTime(ms:number){
     const seconds=ms/1000

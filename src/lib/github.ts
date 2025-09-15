@@ -23,21 +23,21 @@ export const getCommitHashes=async(githubUrl:string):Promise<Response[]>=>{
     if(!owner || !repo){
         throw new Error("Invalid github url")
     }
- const {data}=await octokit.rest.repos.listCommits({
+    const {data}=await octokit.rest.repos.listCommits({
     owner,
     repo
- })
+    })
 // console.log(data)
 
- const sortedCommits=data.sort((a:any,b:any)=>new Date(b.commit.author.date).getTime()-new Date(a.commit.author.date).getTime()) as any[]
+    const sortedCommits=data.sort((a:any,b:any)=>new Date(b.commit.author.date).getTime()-new Date(a.commit.author.date).getTime()) as any[]
 
- return sortedCommits.slice(0,10).map((commit:any)=>({
+    return sortedCommits.slice(0,10).map((commit:any)=>({
      commitHash:commit.sha as string,
      commitMessage:commit.commit.message??"",
      commitAuthorName:commit.commit?.author?.name??"",
      commitAuthorAvtar: commit.author?.avatar_url ?? commit.committer?.avatar_url ?? "",
      commitDate: commit.commit?.author?.date ??  ""
- }))
+    }))
 } 
 
 //getCommitHashes(githubUrl)

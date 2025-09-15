@@ -3,10 +3,7 @@ import dotenv from "dotenv";
 import { Document } from '@langchain/core/documents';
 import { sleep } from './utils';
 
-
-
 dotenv.config();
-
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
@@ -165,6 +162,8 @@ export const aisummariseCommit = async (diff: string, commitHash?: string) => {
 
 //console.log(await generateEmbedding("hello world"))
 //console.log(await aisummariseCommit("gemini"))
+
+
 export async function summariseCode(docs:Document){
   //console.log("getting summary for",docs.metadata.source);
   try{
@@ -185,23 +184,43 @@ export async function summariseCode(docs:Document){
   }
   
 }
-export async function generateEmbedding(summary:string){
-  try{
-       const model=genAI.getGenerativeModel({
-        model:"embedding-001"
-      })
-      const result=await model.embedContent(summary)
-      if (!result.embedding || !result.embedding.values) {
-        throw new Error("Failed to generate embedding");
-      }
-      const embedding=result.embedding
-      //console.log(embedding.values)
-      return embedding.values
-  }catch(error){
-    console.error('Embedding failed', error);
+export async function generateEmbedding(summary: string): Promise<number[]> {
+  // Guard empty input to avoid empty vectors
+  const text = (summary || "").trim();
+  if (text.length === 0) {
+    console.warn("generateEmbedding called with empty text");
     return [];
   }
-    
-}
 
-//console.log(generateEmbedding("hello world"))
+  // Truncate to stay well within token/size limits
+  const MAX_CHARS = 8000;
+  const truncated = text.length > MAX_CHARS ? text.slice(0, MAX_CHARS) : text;
+
+  const model = genAI.getGenerativeModel({
+    // Use current embedding model
+    model: "text-embedding-004",
+  });
+
+  const maxRetries = 3;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const result = await model.embedContent(truncated);
+      const values = result?.embedding?.values as number[] | undefined;
+      if (Array.isArray(values) && values.length > 0) {
+        return values;
+      }
+      console.error("Embedding returned no values");
+      return [];
+    } catch (error: any) {
+      const isRateLimited = error?.status === 429 || error?.message?.toString?.().includes("quota");
+      console.error(`generateEmbedding error (attempt ${attempt + 1}):`, error);
+      if (isRateLimited && attempt < maxRetries - 1) {
+        const waitMs = 1500 * (attempt + 1);
+        await sleep(waitMs);
+        continue;
+      }
+      return [];
+    }
+  }
+  return [];
+}

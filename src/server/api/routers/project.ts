@@ -7,7 +7,7 @@ import { checkCredits, indexGithubRepo } from "@/lib/github-loader";
 export const projectRouter=createTRPCRouter({
   
 
-createProject:protectedProcedure.input(
+   createProject:protectedProcedure.input(
     z.object({
         name:z.string(),
         githubUrl:z.string(),
@@ -16,7 +16,7 @@ createProject:protectedProcedure.input(
     })
    ).mutation(async ({ ctx, input }) => {
      
-    try {
+  try {
       console.log("Received input:", input);
       console.log("User ID from session:", ctx.user?.userId);
       const project = await ctx.db.project.create({
@@ -53,7 +53,8 @@ getProjects:protectedProcedure.query(async({ctx})=>{
         }
     })
 }),
-   getCommits:protectedProcedure.input(z.object({
+
+getCommits:protectedProcedure.input(z.object({
     projectId:z.string()
    })).query(async({ctx,input})=>{
     pollCommits(input.projectId).then().catch(console.error)
